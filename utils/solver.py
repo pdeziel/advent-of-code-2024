@@ -2,11 +2,18 @@ class BaseSolver:
     def __init__(self, input_path):
         self.input_path = input_path
 
-    def read_input(self, row_wise=False, dtype=str):
+    def read_input(self, row_wise=False, dtype=str, delimiter="ws"):
         data = []
-        with open(self.input_path, 'r') as file:
+        with open(self.input_path, "r") as file:
             for line in file.readlines():
-                row_values = [dtype(v) for v in line.strip().split()]
+                line = line.strip()
+                if delimiter is not None:
+                    splits = (
+                        line.split(delimiter) if delimiter != "ws" else line.split()
+                    )
+                    row_values = [dtype(v) for v in splits]
+                else:
+                    row_values = dtype(line)
                 if row_wise:
                     data.append(row_values)
                 else:
@@ -17,6 +24,6 @@ class BaseSolver:
                             data.append([value])
 
         return data
-    
+
     def solve(self):
         raise NotImplementedError("solve method not implemented")
