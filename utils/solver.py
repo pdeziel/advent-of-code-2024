@@ -8,10 +8,13 @@ class BaseSolver:
             for line in file.readlines():
                 line = line.strip()
                 if delimiter is not None:
-                    splits = (
-                        line.split(delimiter) if delimiter != "ws" else line.split()
-                    )
-                    row_values = [dtype(v) for v in splits]
+                    if delimiter == "char":
+                        row_values = [dtype(v) for v in line]
+                    else:
+                        splits = (
+                            line.split(delimiter) if delimiter != "ws" else line.split()
+                        )
+                        row_values = [dtype(v) for v in splits]
                 else:
                     row_values = dtype(line)
                 if row_wise:
