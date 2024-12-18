@@ -6,7 +6,6 @@ class Solver(BaseSolver):
     def get_distances(self, start, end, corrupted, width=70, height=70):
         visited = set()
         distances = {start: 0}
-        paths = {start: [start]}
         while end not in visited:
             current = None
             for node in distances:
@@ -16,7 +15,7 @@ class Solver(BaseSolver):
                     current = node
 
             if current is None:
-                return None, None
+                return None
 
             visited.add(current)
             for row, col in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
@@ -27,38 +26,31 @@ class Solver(BaseSolver):
                     continue
                 if new in corrupted:
                     continue
-
                 distance = distances[current] + 1
                 if new not in distances or distance < distances[new]:
                     distances[new] = distance
-                    paths[new] = paths[current] + [new]
 
-        return distances, paths
+        return distances[end]
 
     def solve(self):
         data = self.read_input(row_wise=True, dtype=int, delimiter=",")
         corrupted = [(row[0], row[1]) for row in data]
-        idx = 1024
 
         width = 70
         height = 70
         start = (0, 0)
         end = (width, height)
+        min_val = 1024
+        max_val = len(corrupted) - 1
+        while min_val < max_val:
+            idx = (min_val + max_val) // 2
+            distances = self.get_distances(
+                start, end, corrupted[: idx + 1], width=width, height=height
+            )
+            if distances is None:
+                max_val = idx
+                continue
+            else:
+                min_val = idx + 1
 
-        _, paths = self.get_distances(
-            start, end, corrupted[:idx], width=width, height=height
-        )
-        while idx < len(corrupted):
-            # Could optimize with binary search
-            pos = corrupted[idx]
-            if pos in paths[end]:
-                # Only need to rerun the pathfinding if the path is blocked
-                _, paths = self.get_distances(
-                    start, end, corrupted[: idx + 1], width=width, height=height
-                )
-                if paths is None:
-                    return pos
-
-            idx += 1
-
-        assert False
+        return corrupted[min_val]
